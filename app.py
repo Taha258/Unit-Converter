@@ -1,8 +1,8 @@
 import streamlit as st
-from dotenv import load_dotenv
-import os
 from google.generativeai import GenerativeModel, configure
 import json
+import os
+from dotenv import load_dotenv
 
 hide_st_style = """
             <style>
@@ -13,18 +13,17 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-
-# Load environment variables
-load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+# Load API key (local .env ya cloud secrets)
+load_dotenv()  # Local ke liye .env file se try karega
+api_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY", None)
 
 if not api_key:
-    st.warning("⚠️ Please set your GEMINI_API_KEY in the .env file.", icon="🚨")
+    st.warning("⚠️ Please set your GEMINI_API_KEY in .env (local) or secrets.toml (cloud).", icon="🚨")
     st.stop()
 
 configure(api_key=api_key)
 
-# Conversion function (unchanged)
+# Conversion function
 def convert_units(value, from_unit, to_unit, category):
     conversions = {
         "Length": {
@@ -72,7 +71,7 @@ def convert_units(value, from_unit, to_unit, category):
     result = to_base / conversions[category][to_unit]
     return result
 
-# Gemini Parsing Function (unchanged)
+# Gemini Parsing Function
 def parse_with_gemini(input_text):
     try:
         model = GenerativeModel(model_name="gemini-1.5-flash")
